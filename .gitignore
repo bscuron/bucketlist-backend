@@ -1,0 +1,9 @@
+node_modules/
+dist/
+npm-debug.*
+yarn-error.log
+.env
+*~
+
+# macOS
+.DS_Store

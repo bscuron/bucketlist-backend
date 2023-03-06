@@ -4,6 +4,7 @@ npm-debug.*
 yarn-error.log
 .env
 *~
+docs/
 
 # macOS
 .DS_Store

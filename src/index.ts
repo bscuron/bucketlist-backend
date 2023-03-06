@@ -1,3 +1,6 @@
+import { Express, Request, Response } from 'express';
+import { Connection, ConnectionConfig, MysqlError } from 'mysql';
+
 // Load project environment variables (located in `.env`)
 require('dotenv').config();
 
@@ -7,15 +10,15 @@ const cors = require('cors');
 const mysql = require('mysql');
 
 // Connect to the database
-const db_config = {
+const db_config: ConnectionConfig = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME
 };
 
-// Database connection
-let connection;
+// Create mysql database connection
+let connection: Connection;
 
 // Function that connects to the MySQL database. Automatically tries to reconnect if connection is lost.
 function handle_disconnect() {
@@ -23,7 +26,7 @@ function handle_disconnect() {
     connection = mysql.createConnection(db_config);
 
     // Attempt to connect to database
-    connection.connect((err) => {
+    connection.connect((err: MysqlError) => {
         // Failed to connect
         if (err) {
             console.log('ERROR: Failed to connect to database: ', err);
@@ -37,7 +40,7 @@ function handle_disconnect() {
     });
 
     // Error handler
-    connection.on('error', (err) => {
+    connection.on('error', (err: MysqlError) => {
         // Lost connection to the database, attempt to reconnect
         if (err.code === 'PROTOCOL_CONNECTION_LOST') {
             console.log('WARNING: Database connection lost');
@@ -55,7 +58,7 @@ function handle_disconnect() {
 handle_disconnect();
 
 // Create express application
-const app = express();
+const app: Express = express();
 
 // Allow cross-origin requests
 app.use(cors());
@@ -64,7 +67,7 @@ app.use(cors());
 app.use(express.json());
 
 // Create a POST route
-app.post('/signup', (req, res) => {
+app.post('/signup', (req: Request, res: Response) => {
     const username: string = req.body.username;
     const email: string = req.body.email;
     const password: string = req.body.password;
@@ -85,7 +88,7 @@ app.post('/signup', (req, res) => {
 
 // TODO: remove this route (just returns database contents)
 // Create a GET route
-app.get('/database', (req, res) => {
+app.get('/database', (req: Request, res: Response) => {
     // Query the database
     connection.query('SELECT * FROM Users', (error, results, fields) => {
         if (error) throw error;

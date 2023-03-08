@@ -73,14 +73,18 @@ app.post('/signup', (req: Request, res: Response) => {
     const email: string = req.body.email;
     const password: string = req.body.password;
     const a_code: string = createHash(25);
+    const r_datetime: string = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace('T', ' ');
 
     // TODO: better validate user data and secure password
     if (username.length < 1 || email.length < 1 || password.length < 1) return;
 
     // Insert entry into database
     connection.query(
-        'INSERT INTO users (username, email, password, a_code) VALUES (?, ?, ?, ?)',
-        [username, email, password, a_code],
+        'INSERT INTO users (username, email, password, a_code, r_datetime) VALUES (?, ?, ?, ?, ?)',
+        [username, email, password, a_code, r_datetime],
         (error, results, fields) => {
             if (error) throw error;
             res.json({ message: 'Account Created!' });

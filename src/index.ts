@@ -8,6 +8,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
+const createHash = require('hash-generator');
 
 // Connect to the database
 const db_config: ConnectionConfig = {
@@ -71,14 +72,15 @@ app.post('/signup', (req: Request, res: Response) => {
     const username: string = req.body.username;
     const email: string = req.body.email;
     const password: string = req.body.password;
+    const a_code: string = createHash(25);
 
     // TODO: better validate user data and secure password
     if (username.length < 1 || email.length < 1 || password.length < 1) return;
 
     // Insert entry into database
     connection.query(
-        'INSERT INTO Users (username, email, password) VALUES (?, ?, ?)',
-        [username, email, password],
+        'INSERT INTO users (username, email, password, a_code) VALUES (?, ?, ?, ?)',
+        [username, email, password, a_code],
         (error, results, fields) => {
             if (error) throw error;
             res.json({ message: 'Account Created!' });
@@ -90,7 +92,7 @@ app.post('/signup', (req: Request, res: Response) => {
 // Create a GET route
 app.get('/database', (req: Request, res: Response) => {
     // Query the database
-    connection.query('SELECT * FROM Users', (error, results, fields) => {
+    connection.query('SELECT * FROM users', (error, results, fields) => {
         if (error) throw error;
         res.json({ rows: results });
     });

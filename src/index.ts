@@ -92,10 +92,21 @@ app.post('/signup', (req: Request, res: Response) => {
     );
 });
 
+// Create a GET route to see if username exists
+app.get('/database/user/:username', (req: Request, res: Response) => {
+    connection.query(
+        'SELECT username FROM users WHERE username=?',
+        [req.params.username],
+        (error, results, fields) => {
+            if (error) throw error;
+            res.json({ rows: results });
+        }
+    );
+});
+
 // TODO: remove this route (just returns database contents)
 // Create a GET route
 app.get('/database', (req: Request, res: Response) => {
-    // Query the database
     connection.query('SELECT * FROM users', (error, results, fields) => {
         if (error) throw error;
         res.json({ rows: results });

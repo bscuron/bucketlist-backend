@@ -104,6 +104,18 @@ app.get('/database/user/:username', (req: Request, res: Response) => {
     );
 });
 
+// Create a GET route to see if email exists
+app.get('/database/email/:email', (req: Request, res: Response) => {
+    connection.query(
+        'SELECT email FROM users WHERE email=?',
+        [req.params.email],
+        (error, results, fields) => {
+            if (error) throw error;
+            res.json({ rows: results });
+        }
+    );
+});
+
 // TODO: remove this route (just returns database contents)
 // Create a GET route
 app.get('/database', (req: Request, res: Response) => {

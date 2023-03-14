@@ -25,8 +25,12 @@ app.post('/signup', (req: Request, res: Response) => {
         'INSERT INTO users (username, email, password, a_code, r_datetime) VALUES (?, ?, ?, ?, ?)',
         [username, email, password, a_code, r_datetime],
         (error, results, fields) => {
-            if (error) throw error;
-            res.json({ message: 'Account Created!' });
+            if (error) {
+                return res
+                    .status(500)
+                    .json({ message: 'Failed to create account' }); // 500 Internal Server Error
+            }
+            return res.status(201).json({ message: 'Account Created' }); // 201 Created
         }
     );
 });

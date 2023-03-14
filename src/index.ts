@@ -1,5 +1,8 @@
 import { Express, Request, Response } from 'express';
 
+// Load project environment variables locate in `.env`
+require('dotenv').config();
+
 // Import external modules
 const express = require('express');
 const cors = require('cors');
@@ -79,8 +82,8 @@ app.get('/database', (req: Request, res: Response) => {
     );
 });
 
-// Start the server, listen for requests on port 8000
+// Start the server, listen for requests on port defined in `.env`
 // TODO: create variable for port
-app.listen(8000, () => {
-    console.log(`LOG: Server is running on port 8000`);
+app.listen(process.env.PORT, () => {
+    console.log(`LOG: Server is running on port ${process.env.PORT}`);
 });

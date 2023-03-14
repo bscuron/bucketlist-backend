@@ -1,10 +1,7 @@
-import { Connection, ConnectionConfig, MysqlError } from 'mysql';
+import mysql, { Connection, ConnectionConfig, MysqlError } from 'mysql';
 
 // Load project environment variables locate in `.env`
 require('dotenv').config();
-
-// Load external module
-const mysql = require('mysql');
 
 // Define database configuration
 const db_config: ConnectionConfig = {
@@ -44,6 +41,4 @@ function createConnection() {
 createConnection();
 
 // Export the MySQL connection
-module.exports = {
-    connection
-};
+export { connection };

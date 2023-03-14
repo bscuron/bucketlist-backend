@@ -3,11 +3,7 @@ import mysql, { Connection, ConnectionConfig, MysqlError } from 'mysql';
 // Load project environment variables locate in `.env`
 require('dotenv').config();
 
-/**
- * Database configuration object containing sign-in credentials for
- * MySQL database. Credentials are found in `.env` located on the
- * server.
- */
+// Define database configuration
 const db_config: ConnectionConfig = {
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -15,20 +11,15 @@ const db_config: ConnectionConfig = {
     database: process.env.DB_NAME
 };
 
-/**
- * Database connection used to make queries and other database related
- * activities
- */
+// Database connection to be exported
 let db: Connection;
 
-/**
- * Create a connection to MySQL database. Attempt to reconnect on
- * error.
- */
+// Create a connection to MySQL database
 function createConnection() {
     console.log('LOG: Connecting to database...');
     db = mysql.createConnection(db_config);
 
+    // Attempt to connect to database
     db.connect((err: MysqlError) => {
         if (err) {
             console.error('ERROR: Failed to connect to database: ', err);
@@ -38,6 +29,7 @@ function createConnection() {
         }
     });
 
+    // Error handler
     db.on('error', (err: MysqlError) => {
         console.error(`ERROR: ${err}`);
         console.log('LOG: attempting to reconnect...');

@@ -11,10 +11,12 @@ const db_config: ConnectionConfig = {
     database: process.env.DB_NAME
 };
 
-// Database connection to be exported
+/**
+ * MySQL database connection to interact with database on linux server.
+ */
 let db: Connection;
 
-// Create a connection to MySQL database
+// Initializes `db`'s connection. Sets up an error handler that attempts to reconnect on connection error.
 function createConnection() {
     console.log('LOG: Connecting to database...');
     db = mysql.createConnection(db_config);

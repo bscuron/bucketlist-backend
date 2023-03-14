@@ -6,7 +6,7 @@ import { app } from './modules/express';
 // Load project environment variables locate in `.env`
 require('dotenv').config();
 
-// Create a POST route
+// POST route for user signup
 app.post('/signup', (req: Request, res: Response) => {
     const username: string = req.body.username;
     const email: string = req.body.email;
@@ -21,7 +21,6 @@ app.post('/signup', (req: Request, res: Response) => {
     if (username.length < 1 || email.length < 1 || password.length < 1) return;
 
     // TODO: check if username or email are already in database
-    // Insert entry into database
     db.query(
         'INSERT INTO users (username, email, password, a_code, r_datetime) VALUES (?, ?, ?, ?, ?)',
         [username, email, password, a_code, r_datetime],
@@ -32,7 +31,7 @@ app.post('/signup', (req: Request, res: Response) => {
     );
 });
 
-// Create a GET route to see if username exists
+// GET route to see if username exists
 app.get('/database/user/:username', (req: Request, res: Response) => {
     db.query(
         'SELECT username FROM users WHERE username=?',
@@ -44,7 +43,7 @@ app.get('/database/user/:username', (req: Request, res: Response) => {
     );
 });
 
-// Create a GET route to see if email exists
+// GET route to see if email exists
 app.get('/database/email/:email', (req: Request, res: Response) => {
     db.query(
         'SELECT email FROM users WHERE email=?',
@@ -57,7 +56,7 @@ app.get('/database/email/:email', (req: Request, res: Response) => {
 });
 
 // TODO: remove this route (just returns database contents)
-// Create a GET route
+// GET route to retrieve database contents
 app.get('/database', (req: Request, res: Response) => {
     db.query('SELECT * FROM users', (error, results, fields) => {
         if (error) throw error;
@@ -65,8 +64,8 @@ app.get('/database', (req: Request, res: Response) => {
     });
 });
 
-// Start the server, listen for requests on port defined in `.env`
 // TODO: create variable for port
+// Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);
 });

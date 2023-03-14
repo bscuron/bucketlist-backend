@@ -1,20 +1,10 @@
-import { Express, Request, Response } from 'express';
-import express from 'express';
-import cors from 'cors';
+import { Request, Response } from 'express';
 import createHash from 'hash-generator';
-import { connection } from './modules/database';
+import { db } from './modules/database';
+import { app } from './modules/express';
 
 // Load project environment variables locate in `.env`
 require('dotenv').config();
-
-// Create express application
-const app: Express = express();
-
-// Allow cross-origin requests
-app.use(cors());
-
-// Parse the incoming requests with JSON payloads
-app.use(express.json());
 
 // Create a POST route
 app.post('/signup', (req: Request, res: Response) => {
@@ -32,7 +22,7 @@ app.post('/signup', (req: Request, res: Response) => {
 
     // TODO: check if username or email are already in database
     // Insert entry into database
-    connection.query(
+    db.query(
         'INSERT INTO users (username, email, password, a_code, r_datetime) VALUES (?, ?, ?, ?, ?)',
         [username, email, password, a_code, r_datetime],
         (error, results, fields) => {
@@ -44,7 +34,7 @@ app.post('/signup', (req: Request, res: Response) => {
 
 // Create a GET route to see if username exists
 app.get('/database/user/:username', (req: Request, res: Response) => {
-    connection.query(
+    db.query(
         'SELECT username FROM users WHERE username=?',
         [req.params.username],
         (error, results, fields) => {
@@ -56,7 +46,7 @@ app.get('/database/user/:username', (req: Request, res: Response) => {
 
 // Create a GET route to see if email exists
 app.get('/database/email/:email', (req: Request, res: Response) => {
-    connection.query(
+    db.query(
         'SELECT email FROM users WHERE email=?',
         [req.params.email],
         (error, results, fields) => {
@@ -69,7 +59,7 @@ app.get('/database/email/:email', (req: Request, res: Response) => {
 // TODO: remove this route (just returns database contents)
 // Create a GET route
 app.get('/database', (req: Request, res: Response) => {
-    connection.query('SELECT * FROM users', (error, results, fields) => {
+    db.query('SELECT * FROM users', (error, results, fields) => {
         if (error) throw error;
         res.json({ rows: results });
     });

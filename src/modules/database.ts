@@ -12,15 +12,15 @@ const db_config: ConnectionConfig = {
 };
 
 // Database connection to be exported
-let connection: Connection;
+let db: Connection;
 
 // Create a connection to MySQL database
 function createConnection() {
     console.log('LOG: Connecting to database...');
-    connection = mysql.createConnection(db_config);
+    db = mysql.createConnection(db_config);
 
     // Attempt to connect to database
-    connection.connect((err: MysqlError) => {
+    db.connect((err: MysqlError) => {
         if (err) {
             console.error('ERROR: Failed to connect to database: ', err);
             setTimeout(createConnection, 500);
@@ -30,7 +30,7 @@ function createConnection() {
     });
 
     // Error handler
-    connection.on('error', (err: MysqlError) => {
+    db.on('error', (err: MysqlError) => {
         console.error(`ERROR: ${err}`);
         console.log('LOG: attempting to reconnect...');
         setTimeout(createConnection, 500);
@@ -41,4 +41,4 @@ function createConnection() {
 createConnection();
 
 // Export the MySQL connection
-export { connection };
+export { db };

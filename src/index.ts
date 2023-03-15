@@ -68,7 +68,6 @@ app.get('/database', (req: Request, res: Response) => {
     });
 });
 
-// TODO: create variable for port
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);

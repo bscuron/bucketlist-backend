@@ -31,6 +31,7 @@ app.use(
 /**
  * Create JSON Web Token (JWT) with secret
  *
+ * @param {object} payload Payload to store in JWT
  * @returns {string} JSON Web Token
  */
 const createAuthToken = (payload: object): string => {

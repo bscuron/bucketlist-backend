@@ -14,15 +14,15 @@ const db_config: ConnectionConfig = {
 /**
  * MySQL database connection to interact with database on linux server.
  */
-let db: Connection;
+let connection: Connection;
 
-// Initializes `db`'s connection. Sets up an error handler that attempts to reconnect on connection error.
+// Initializes `connection`'s connection. Sets up an error handler that attempts to reconnect on connection error.
 function createConnection() {
     console.log('LOG: Connecting to database...');
-    db = mysql.createConnection(db_config);
+    connection = mysql.createConnection(db_config);
 
     // Attempt to connect to database
-    db.connect((err: MysqlError) => {
+    connection.connect((err: MysqlError) => {
         if (err) {
             console.error('ERROR: Failed to connect to database: ', err);
             setTimeout(createConnection, 500);
@@ -32,7 +32,7 @@ function createConnection() {
     });
 
     // Error handler
-    db.on('error', (err: MysqlError) => {
+    connection.on('error', (err: MysqlError) => {
         console.error(`ERROR: ${err}`);
         console.log('LOG: attempting to reconnect...');
         setTimeout(createConnection, 500);
@@ -42,5 +42,47 @@ function createConnection() {
 // Create the connection
 createConnection();
 
+/**
+ * Check if `table` contains key-value `pairs`
+ *
+ * @params {string} table Table to check in to see if key-value pairs exist
+ * @params {object} pairs Key-value pair object where keys are column names of `table` and values are row values
+ * @example
+ * In this example, we are checking the `users` table to see
+ * if `username` appears in column `username` and `password` appears
+ * in column `password`
+ * ```ts
+ * db.contains('users', { username: username, password: password })
+ *   .then((result) => {
+ *       if (!result) return res.sendStatus(401); // 401 Unauthorized
+ *       const token: string = createAuthToken({ username: username });
+ *       return res.status(200).json({ token }); // 200 OK
+ *   })
+ *   .catch((error) => {
+ *       throw error;
+ *   });
+ */
+const contains = (table: string, pairs: object): Promise<boolean> => {
+    return new Promise((resolve, reject) => {
+        const [keys, values] = [Object.keys(pairs), Object.values(pairs)];
+        if (keys.length <= 0 || values.length <= 0) return resolve(false);
+
+        const conditional: string = '??=? AND '
+            .repeat(keys.length)
+            .slice(0, -5);
+        connection.query(
+            `SELECT * FROM ?? WHERE ${conditional}`,
+            [
+                table,
+                Object.entries(pairs).flatMap(([key, value]) => [key, value])
+            ].flat(),
+            (error, results, _) => {
+                if (error) return reject(error);
+                resolve(results.length > 0);
+            }
+        );
+    });
+};
+
 // Export the MySQL connection
-export { db };
+export { connection, contains };

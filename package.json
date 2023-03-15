@@ -27,10 +27,12 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "hash-generator": "^0.1.0",
+    "jsonwebtoken": "^9.0.0",
     "mysql": "^2.18.1",
     "prettier": "^2.8.4"
   }

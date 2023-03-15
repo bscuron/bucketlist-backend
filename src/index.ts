@@ -33,6 +33,7 @@ app.post('/signup', (req: Request, res: Response) => {
     );
 });
 
+// POST route for user login
 app.post('/login', (req: Request, res: Response) => {
     const username: string = req.body.username;
     const password: string = req.body.password;

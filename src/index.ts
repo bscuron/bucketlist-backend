@@ -35,6 +35,7 @@ app.post('/signup', (req: Request, res: Response) => {
     );
 });
 
+// TODO: return status code
 // GET route to see if username exists
 app.get('/database/user/:username', (req: Request, res: Response) => {
     db.query(
@@ -47,6 +48,7 @@ app.get('/database/user/:username', (req: Request, res: Response) => {
     );
 });
 
+// TODO: return status code
 // GET route to see if email exists
 app.get('/database/email/:email', (req: Request, res: Response) => {
     db.query(
@@ -59,6 +61,7 @@ app.get('/database/email/:email', (req: Request, res: Response) => {
     );
 });
 
+// TODO: return status code
 // TODO: remove this route (just returns database contents)
 // GET route to retrieve database contents
 app.get('/database', (req: Request, res: Response) => {

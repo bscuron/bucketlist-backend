@@ -7,6 +7,7 @@ import { validate } from './modules/validate';
 // Load project environment variables locate in `.env`
 require('dotenv').config();
 
+// TODO: wrap await in try/catch
 // POST route for user signup
 app.post('/signup', async (req: Request, res: Response) => {
     const username: string = req.body.username;
@@ -36,19 +37,18 @@ app.post('/signup', async (req: Request, res: Response) => {
     );
 });
 
+// TODO: wrap await in try/catch
 // POST route for user login
-app.post('/login', (req: Request, res: Response) => {
+app.post('/login', async (req: Request, res: Response) => {
     const username: string = req.body.username;
     const password: string = req.body.password;
-    db.contains('users', { username: username, password: password })
-        .then((result) => {
-            if (!result) return res.sendStatus(401); // 401 Unauthorized
-            const token: string = createAuthToken({ username: username });
-            return res.status(200).json({ token }); // 200 OK
-        })
-        .catch((error) => {
-            throw error;
-        });
+    const result: boolean = await db.contains('users', {
+        username: username,
+        password: password
+    });
+    if (!result) return res.sendStatus(401); // 401 Unauthorized
+    const token: string = createAuthToken({ username: username });
+    return res.status(200).json({ token }); // 200 OK
 });
 
 // TODO: return status code

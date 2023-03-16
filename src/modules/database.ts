@@ -52,15 +52,10 @@ createConnection();
  * if `username` appears in column `username` and `password` appears
  * in column `password`
  * ```ts
- * db.contains('users', { username: username, password: password })
- *   .then((result) => {
- *       if (!result) return res.sendStatus(401); // 401 Unauthorized
- *       const token: string = createAuthToken({ username: username });
- *       return res.status(200).json({ token }); // 200 OK
- *   })
- *   .catch((error) => {
- *       throw error;
- *   });
+ * const result: boolean = await db.contains('users', {
+ *     username: username,
+ *     password: password
+ * });
  */
 const contains = (table: string, pairs: object): Promise<boolean> => {
     return new Promise((resolve, reject) => {

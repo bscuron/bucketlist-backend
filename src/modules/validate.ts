@@ -1,4 +1,4 @@
-import * as db from './database';
+import { db } from './database';
 
 /**
  * Validates user input data submitted into signup form
@@ -22,26 +22,38 @@ const validate = async (
 
 const validateUsername = async (username: string): Promise<boolean> => {
     if (username == undefined || username.length < 6) {
-        return Promise.resolve(false);
+        return false;
     }
-    return !(await db.contains('users', { username: username }));
+
+    return !(await db('users')
+        .select('user_id')
+        .where({
+            username: username
+        })
+        .first());
 };
 
 const validateEmail = async (email: string): Promise<boolean> => {
     const regex: RegExp =
         /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
     if (email === undefined || !regex.test(email)) {
-        return Promise.resolve(false);
+        return false;
     }
-    return !(await db.contains('users', { email: email }));
+
+    return !(await db('users')
+        .select('user_id')
+        .where({
+            email: email
+        })
+        .first());
 };
 
 const validatePassword = async (password: string): Promise<boolean> => {
     const regex: RegExp = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}/;
     if (password === undefined || password.match(regex) == null) {
-        return Promise.resolve(false);
+        return false;
     }
-    return Promise.resolve(true);
+    return true;
 };
 
 export { validate };

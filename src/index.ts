@@ -1,8 +1,13 @@
-import { Request, Response } from 'express';
+import { Request as ExpressRequest, Response } from 'express';
 import createHash from 'hash-generator';
 import { db } from './modules/database';
 import { app, createAuthToken } from './modules/express';
 import { validate } from './modules/validate';
+
+// Extend ExpressRequest interface to include authentication (needed for JWT)
+interface Request extends ExpressRequest {
+    auth?: any;
+}
 
 // Load project environment variables locate in `.env`
 require('dotenv').config();
@@ -83,6 +88,11 @@ app.get('/database/email/:email', async (req: Request, res: Response) => {
 app.get('/database', async (req: Request, res: Response) => {
     const results = await db('users').select('*');
     res.json({ rows: results });
+});
+
+// TODO: remove, this is just an example protected route
+app.get('/protected', (req: Request, res: Response) => {
+    return res.json({ message: `Your JWT: ${JSON.stringify(req.auth)}` });
 });
 
 // Start the express server on port `process.env.PORT`

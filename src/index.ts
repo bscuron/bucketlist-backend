@@ -2,25 +2,28 @@ import { Request, Response } from 'express';
 import createHash from 'hash-generator';
 import * as db from './modules/database';
 import { app, createAuthToken } from './modules/express';
+import { validate } from './modules/validate';
 
 // Load project environment variables locate in `.env`
 require('dotenv').config();
 
 // POST route for user signup
-app.post('/signup', (req: Request, res: Response) => {
+app.post('/signup', async (req: Request, res: Response) => {
     const username: string = req.body.username;
     const email: string = req.body.email;
     const password: string = req.body.password;
+
+    const valid: boolean = await validate(username, email, password);
+    if (!valid) {
+        return res.sendStatus(400); // 400 Bad Request
+    }
+
     const a_code: string = createHash(25);
     const r_datetime: string = new Date()
         .toISOString()
         .slice(0, 19)
         .replace('T', ' ');
 
-    // TODO: better validate user data and secure password
-    if (username.length < 1 || email.length < 1 || password.length < 1) return;
-
-    // TODO: check if username or email are already in database
     db.connection.query(
         'INSERT INTO users (username, email, password, a_code, r_datetime) VALUES (?, ?, ?, ?, ?)',
         [username, email, password, a_code, r_datetime],

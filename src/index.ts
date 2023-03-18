@@ -1,8 +1,8 @@
 import { Request as ExpressRequest, Response } from 'express';
-import createHash from 'hash-generator';
 import { db } from './modules/database';
 import { app, createAuthToken } from './modules/express';
-import { validate } from './modules/validate';
+import { validate, generateQRCode } from './modules/validate';
+import speakeasy, { GeneratedSecret } from 'speakeasy';
 
 // Extend ExpressRequest interface to include authentication (needed for JWT)
 interface Request extends ExpressRequest {
@@ -24,21 +24,28 @@ app.post('/signup', async (req: Request, res: Response) => {
         return res.sendStatus(400); // 400 Bad Request
     }
 
-    const a_code: string = createHash(25);
     const r_datetime: string = new Date()
         .toISOString()
         .slice(0, 19)
         .replace('T', ' ');
+
+    // Generate multi-factor authentication secret
+    const secret: GeneratedSecret = speakeasy.generateSecret({
+        name: `Bucketlist: ${username}`
+    });
 
     try {
         await db('users').insert({
             username: username,
             email: email,
             password: password,
-            a_code: a_code,
+            secret: secret.base32,
             r_datetime: r_datetime
         });
-        return res.sendStatus(201); // 201 Created
+        const url: string = await generateQRCode(secret);
+
+        // Send the QR code URL to the front-end for rendering
+        return res.status(201).json({ qrcode: url }); // 201 Created
     } catch (error) {
         return res.sendStatus(500); // 500 Internal Server Error
     }

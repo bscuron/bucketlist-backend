@@ -1,4 +1,6 @@
 import { db } from './database';
+import { GeneratedSecret } from 'speakeasy';
+import qrcode from 'qrcode';
 
 /**
  * Validates user input data submitted into signup form
@@ -56,4 +58,22 @@ const validatePassword = async (password: string): Promise<boolean> => {
     return true;
 };
 
-export { validate };
+/**
+ * Generates a QR Code URL
+ *
+ * @param {GeneratedSecret} secret Speakeasy secret generated with username to be stored in database
+ * @returns {Promise<string>} Returns the QR Code URL as a promise
+ */
+const generateQRCode = async (secret: GeneratedSecret): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        qrcode.toDataURL(secret.otpauth_url, (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    });
+};
+
+export { validate, generateQRCode };

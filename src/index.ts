@@ -39,7 +39,7 @@ app.post('/signup', async (req: Request, res: Response) => {
             username: username,
             email: email,
             password: password,
-            secret: secret.base32,
+            secret: secret.ascii,
             r_datetime: r_datetime
         });
         const url: string = await generateQRCode(secret);
@@ -54,16 +54,26 @@ app.post('/signup', async (req: Request, res: Response) => {
 // TODO: wrap await in try/catch
 // POST route for user login
 app.post('/login', async (req: Request, res: Response) => {
+    // Verify there is an account with a matching username and password
     const username: string = req.body.username;
     const password: string = req.body.password;
-    const result: boolean = !!(await db('users')
-        .select('*')
+    const result = await db('users')
+        .select('secret')
         .where({
             username: username,
             password: password
         })
-        .first());
+        .first();
     if (!result) return res.sendStatus(401); // 401 Unauthorized
+
+    // Verify that the TOTP MFA code is valid
+    const verified: boolean = speakeasy.totp.verify({
+        secret: result.secret,
+        token: req.body.code,
+        window: 5
+    });
+    if (!verified) return res.sendStatus(401); // 401 Unauthorized
+
     const token: string = createAuthToken({ username: username });
     return res.status(200).json({ token }); // 200 OK
 });

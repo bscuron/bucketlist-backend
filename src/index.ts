@@ -45,7 +45,10 @@ app.post('/signup', async (req: Request, res: Response) => {
         const url: string = await generateQRCode(secret);
 
         // Send the QR code URL to the front-end for rendering
-        return res.status(201).json({ qrcode: url }); // 201 Created
+        return res.status(201).json({
+            qrcode: url,
+            backupcode: secret.ascii
+        }); // 201 Created
     } catch (error) {
         return res.sendStatus(500); // 500 Internal Server Error
     }

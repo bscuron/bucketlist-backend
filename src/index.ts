@@ -54,9 +54,14 @@ app.post('/signup', async (req: Request, res: Response) => {
 // TODO: wrap await in try/catch
 // POST route for user login
 app.post('/login', async (req: Request, res: Response) => {
-    // Verify there is an account with a matching username and password
     const username: string = req.body.username;
     const password: string = req.body.password;
+    const code: string = req.body.code;
+
+    // Missing credentials
+    if (!username || !password || !code) return res.sendStatus(401); // 401 Unauthorized
+
+    // Verify there is an account with a matching username and password
     const result = await db('users')
         .select('secret')
         .where({
@@ -69,7 +74,7 @@ app.post('/login', async (req: Request, res: Response) => {
     // Verify that the TOTP MFA code is valid
     const verified: boolean = speakeasy.totp.verify({
         secret: result.secret,
-        token: req.body.code,
+        token: code,
         window: 5
     });
     if (!verified) return res.sendStatus(401); // 401 Unauthorized

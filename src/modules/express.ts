@@ -21,7 +21,6 @@ app.use(
         path: [
             '/signup',
             '/login',
-            '/database', // TODO: remove this route when login page is finished
             /^\/database\/user\/[^/]+$/, // NOTE: needed for real-time form validation
             /^\/database\/email\/[^/]+$/ // NOTE: needed for real-time form validation
         ]

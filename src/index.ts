@@ -112,11 +112,6 @@ app.get('/database', async (req: Request, res: Response) => {
     res.json({ rows: results });
 });
 
-// TODO: remove, this is just an example protected route
-app.get('/protected', (req: Request, res: Response) => {
-    return res.json({ message: `Your JWT: ${JSON.stringify(req.auth)}` });
-});
-
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);

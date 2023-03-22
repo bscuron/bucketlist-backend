@@ -63,7 +63,7 @@ app.post('/login', async (req: Request, res: Response) => {
 
     // Verify there is an account with a matching username and password
     const result = await db('users')
-        .select('secret')
+        .select('secret', 'user_id')
         .where({
             username: username,
             password: password
@@ -79,7 +79,10 @@ app.post('/login', async (req: Request, res: Response) => {
     });
     if (!verified) return res.sendStatus(401); // 401 Unauthorized
 
-    const token: string = createAuthToken({ username: username });
+    const token: string = createAuthToken({
+        username: username,
+        user_id: result.user_id
+    });
     return res.status(200).json({ token }); // 200 OK
 });
 

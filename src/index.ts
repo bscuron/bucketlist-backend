@@ -110,7 +110,7 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
     const title: string = req.body.title;
     const description: string = req.body.description;
     const location: string = req.body.location;
-    const creator_id: string = req.auth.id;
+    const creator_id: string = req.auth.user_id;
 
     if (title == undefined || title.length < 1) {
         return res.sendStatus(400); // 400 Bad Request
@@ -121,7 +121,7 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
     }
 
     try {
-        await db(req.params.table).insert({
+        await db('events').insert({
             creator_id: creator_id,
             title: title,
             description: description,

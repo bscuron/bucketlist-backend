@@ -86,34 +86,24 @@ app.post('/login', async (req: Request, res: Response) => {
     return res.status(200).json({ token }); // 200 OK
 });
 
-// TODO: return status code
 // TODO: wrap await in try/catch
-// GET route to see if username exists
-app.get('/database/user/:username', async (req: Request, res: Response) => {
-    const results = await db('users')
-        .select('username')
-        .where({ username: req.params.username });
-    res.json({ rows: results });
+// GET route to return rows in `table`
+app.get('/database/:table', async (req: Request, res: Response) => {
+    const results = await db(req.params.table).select('*');
+    res.status(200).json({ rows: results });
 });
 
-// TODO: return status code
 // TODO: wrap await in try/catch
-// GET route to see if email exists
-app.get('/database/email/:email', async (req: Request, res: Response) => {
-    const results = await db('users')
-        .select('email')
-        .where({ email: req.params.email });
-    res.json({ rows: results });
-});
-
-// TODO: return status code
-// TODO: wrap await in try/catch
-// TODO: remove this route (just returns database contents)
-// GET route to retrieve database contents
-app.get('/database', async (req: Request, res: Response) => {
-    const results = await db('users').select('*');
-    res.json({ rows: results });
-});
+// GET route to return rows in `table` where `value` is in `column`
+app.get(
+    '/database/:table/:column/:value',
+    async (req: Request, res: Response) => {
+        const results = await db(req.params.table)
+            .select('*')
+            .where({ [req.params.column]: req.params.value });
+        res.status(200).json({ rows: results });
+    }
+);
 
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {

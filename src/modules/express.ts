@@ -21,8 +21,8 @@ app.use(
         path: [
             '/signup',
             '/login',
-            /^\/database\/user\/[^/]+$/, // NOTE: needed for real-time form validation
-            /^\/database\/email\/[^/]+$/ // NOTE: needed for real-time form validation
+            /^\/database\/users\/username\/[^/]+$/, // NOTE: needed for real-time form validation
+            /^\/database\/users\/email\/[^/]+$/ // NOTE: needed for real-time form validation
         ]
     })
 );

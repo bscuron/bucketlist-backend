@@ -105,10 +105,28 @@ app.get(
     }
 );
 
-// POST route to create a row in `table`
-app.post('/database/:table/create', async (req: Request, res: Response) => {
+// POST route to create a new event in `events` table
+app.post('/database/events/create', async (req: Request, res: Response) => {
+    const title: string = req.body.title;
+    const description: string = req.body.description;
+    const location: string = req.body.location;
+    const creator_id: string = req.auth.user_id;
+
+    if (title == undefined || title.length < 1) {
+        return res.sendStatus(400); // 400 Bad Request
+    }
+
+    if (location == undefined || location.length < 1) {
+        return res.sendStatus(400); // 400 Bad Request
+    }
+
     try {
-        await db(req.params.table).insert(req.body);
+        await db('events').insert({
+            creator_id: creator_id,
+            title: title,
+            description: description,
+            location: location
+        });
         res.sendStatus(201); // 201 Created
     } catch (_) {
         res.sendStatus(400); // 400 Bad Request

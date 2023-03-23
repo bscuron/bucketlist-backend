@@ -105,6 +105,16 @@ app.get(
     }
 );
 
+// POST route to create a row in `table`
+app.post('/database/:table/create', async (req: Request, res: Response) => {
+    try {
+        await db(req.params.table).insert(req.body);
+        res.sendStatus(201); // 201 Created
+    } catch (_) {
+        res.sendStatus(400); // 400 Bad Request
+    }
+});
+
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);

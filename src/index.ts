@@ -35,15 +35,12 @@ app.post('/signup', async (req: Request, res: Response) => {
     });
 
     try {
-        const [user_id] = await db('users').insert({
+        await db('users').insert({
             username: username,
             email: email,
             password: password,
             secret: secret.ascii,
             r_datetime: r_datetime
-        });
-        await db('profiles').insert({
-            profile_id: user_id
         });
         const url: string = await generateQRCode(secret);
 

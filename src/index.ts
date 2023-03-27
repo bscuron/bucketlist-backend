@@ -133,6 +133,24 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
     }
 });
 
+// GET route to retrieve profile information of `user_id` from `users` table. If `user_id` is not provided, the current user's profile is returned
+app.get('/profile/:user_id?', async (req: Request, res: Response) => {
+    const user = await db('users')
+        .select(
+            'username',
+            'first_name',
+            'last_name',
+            'gender',
+            'dob',
+            'introduction',
+            'picture'
+        )
+        .where({ user_id: req.params.user_id || req.auth.user_id })
+        .first();
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.status(200).json(user);
+});
+
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);

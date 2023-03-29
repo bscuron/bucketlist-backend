@@ -157,22 +157,6 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
     res.status(200).json(user);
 });
 
-// TODO: wrap await in try/catch
-// GET route to return profile rows from `users` table.
-app.get('/profile/all', async (req: Request, res: Response) => {
-    const results = await db('users')
-        .select(
-            'username',
-            'first_name',
-            'last_name',
-            'gender',
-            'dob',
-            'introduction',
-            'picture'
-        );
-    res.status(200).json({ rows: results });
-});
-
 // Post route to update profile information of user_id from users table.
 app.post('/profile/edit', async (req: Request, res: Response) => {
     // TODO: validate request data
@@ -191,7 +175,7 @@ app.post('/profile/edit', async (req: Request, res: Response) => {
             .status(404)
             .json({ error: 'User not found, cannot update profile' });
     res.sendStatus(200);
-});
+})
 
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {

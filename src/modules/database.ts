@@ -12,7 +12,6 @@ interface KnexConfig {
         user: string;
         password: string;
         database: string;
-        timezone: string;
         dateStrings: boolean;
     };
 }
@@ -26,7 +25,6 @@ const config: KnexConfig = {
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: process.env.DB_NAME,
-        timezone: 'UTC',
         dateStrings: true
     }
 };

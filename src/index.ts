@@ -151,7 +151,7 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
             'introduction',
             'picture'
         )
-        .where({ user_id: req.auth.user_id })
+        .where({ user_id: req.params.user_id || req.auth.user_id })
         .first();
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.status(200).json(user);

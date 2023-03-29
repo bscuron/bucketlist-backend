@@ -151,14 +151,14 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
             'introduction',
             'picture'
         )
-        .where({ user_id: req.params.user_id || req.auth.user_id })
+        .where({ user_id: req.auth.user_id })
         .first();
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.status(200).json(user);
 });
 
 // Post route to update profile information of user_id from users table.
-app.post('/profile/edit/:user_id', async (req: Request, res: Response) => {
+app.post('/profile/edit/', async (req: Request, res: Response) => {
     const user = await db('users')
         .update({
             first_name  : req.params.first_name,
@@ -167,9 +167,9 @@ app.post('/profile/edit/:user_id', async (req: Request, res: Response) => {
             dob         : req.params.dob,
             introduction: req.params.introduction,
         })
-        .where({user_id: req.params.user_id} || req.auth.user_id)
+        .where({user_id: req.auth.user_id})
     if(!user) return res.status(404).json({error: 'User not found, cannot update profile'});
-    res.status(200).json(user);
+    res.status(200);
 })
 
 // Start the express server on port `process.env.PORT`

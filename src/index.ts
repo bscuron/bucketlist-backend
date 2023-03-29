@@ -158,7 +158,7 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
 });
 
 // Post route to update profile information of user_id from users table.
-app.post('/profile/:user_id', async (req: Request, res: Response) => {
+app.post('/profile/edit/:user_id', async (req: Request, res: Response) => {
     const user = await db('users')
         .update({
             first_name  : req.params.first_name,

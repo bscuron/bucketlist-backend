@@ -157,6 +157,21 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
     res.status(200).json(user);
 });
 
+// Post route to update profile information of user_id from users table.
+app.post('/profile/edit', async (req: Request, res: Response) => {
+    const user = await db('users')
+        .update({
+            first_name  : req.params.first_name,
+            last_name   : req.params.last_name,
+            gender      : req.params.gender,
+            dob         : req.params.dob,
+            introduction: req.params.introduction,
+        })
+        .where({user_id: req.auth.user_id})
+    if(!user) return res.status(404).json({error: 'User not found, cannot update profile'});
+    res.sendStatus(200);
+})
+
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);

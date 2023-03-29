@@ -12,6 +12,8 @@ interface KnexConfig {
         user: string;
         password: string;
         database: string;
+        timezone: string;
+        dateStrings: boolean;
     };
 }
 

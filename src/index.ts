@@ -120,12 +120,18 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
         return res.sendStatus(400); // 400 Bad Request
     }
 
+    const created_datetime: string = new Date()
+        .toISOString()
+        .slice(0, 19)
+        .replace('T', ' ');
+
     try {
         await db('events').insert({
             user_id: user_id,
             title: title,
             description: description,
-            location: location
+            location: location,
+            created_datetime: created_datetime
         });
         res.sendStatus(201); // 201 Created
     } catch (_) {

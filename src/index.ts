@@ -161,16 +161,19 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
 app.post('/profile/edit', async (req: Request, res: Response) => {
     const user = await db('users')
         .update({
-            first_name  : req.params.first_name,
-            last_name   : req.params.last_name,
-            gender      : req.params.gender,
-            dob         : req.params.dob,
-            introduction: req.params.introduction,
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            gender: req.body.gender,
+            dob: req.body.dob,
+            introduction: req.body.introduction
         })
-        .where({user_id: req.auth.user_id})
-    if(!user) return res.status(404).json({error: 'User not found, cannot update profile'});
+        .where({ user_id: req.auth.user_id });
+    if (!user)
+        return res
+            .status(404)
+            .json({ error: 'User not found, cannot update profile' });
     res.sendStatus(200);
-})
+});
 
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {

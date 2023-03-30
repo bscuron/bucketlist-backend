@@ -159,13 +159,15 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
 
 // Post route to update profile information of user_id from users table.
 app.post('/profile/edit', async (req: Request, res: Response) => {
+    // TODO: validate request data
+
     const user = await db('users')
         .update({
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            gender: req.body.gender,
-            dob: req.body.dob,
-            introduction: req.body.introduction
+            first_name: req.body.first_name || null,
+            last_name: req.body.last_name || null,
+            gender: req.body.gender || null,
+            dob: req.body.dob || null,
+            introduction: req.body.introduction || null
         })
         .where({ user_id: req.auth.user_id });
     if (!user)

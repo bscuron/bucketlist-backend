@@ -159,7 +159,7 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
 
 // TODO: wrap await in try/catch
 // GET route to return profile rows from `users` table.
-app.get('/profile/all', async (req: Request, res: Response) => {
+app.get('/profiles', async (req: Request, res: Response) => {
     const results = await db('users')
         .select(
             'username',

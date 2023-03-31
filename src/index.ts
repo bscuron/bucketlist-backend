@@ -175,7 +175,7 @@ app.post('/profile/edit', async (req: Request, res: Response) => {
             .status(404)
             .json({ error: 'User not found, cannot update profile' });
     res.sendStatus(200);
-})
+});
 
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {

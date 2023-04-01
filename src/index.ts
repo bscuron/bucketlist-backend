@@ -122,6 +122,7 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
     }
 
     // Check that host_datetime is in valid format
+    // TODO: validate that the datetime is within a certain time range (not too far in the past, future is allowed)
     const datetime_regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
     if (!datetime_regex.test(host_datetime)) {
         return res.sendStatus(400); // 400 Bad Request

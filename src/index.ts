@@ -111,12 +111,19 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
     const description: string = req.body.description;
     const location: string = req.body.location;
     const user_id: string = req.auth.user_id;
+    const host_datetime: string = req.body.host_datetime;
 
     if (title == undefined || title.length < 1) {
         return res.sendStatus(400); // 400 Bad Request
     }
 
     if (location == undefined || location.length < 1) {
+        return res.sendStatus(400); // 400 Bad Request
+    }
+
+    // Check that host_datetime is in valid format
+    const datetime_regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+    if (!datetime_regex.test(host_datetime)) {
         return res.sendStatus(400); // 400 Bad Request
     }
 
@@ -131,7 +138,8 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
             title: title,
             description: description,
             location: location,
-            created_datetime: created_datetime
+            created_datetime: created_datetime,
+            host_datetime: host_datetime
         });
         res.sendStatus(201); // 201 Created
     } catch (_) {

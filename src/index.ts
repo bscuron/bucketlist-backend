@@ -142,7 +142,7 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
 // GET route to retrieve profile information of `user_id` from `users` table. If `user_id` is not provided, the current user's profile is returned
 app.get('/profile/:user_id?', async (req: Request, res: Response) => {
     const user_id = req.params.user_id || req.auth.user_id;
-    const user = await db('users')
+    const profile = await db('users')
         .select(
             'username',
             'first_name',
@@ -154,26 +154,25 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
         )
         .where({ user_id: user_id })
         .first();
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!profile) return res.status(404).json({ error: 'User not found' });
 
     const events = await db('events').select('*').where({ user_id: user_id });
 
-    res.status(200).json({ user, events });
+    res.status(200).json({ profile: profile, events: events });
 });
 
 // TODO: wrap await in try/catch
 // GET route to return profile rows from `users` table.
 app.get('/profiles', async (req: Request, res: Response) => {
-    const results = await db('users')
-        .select(
-            'username',
-            'first_name',
-            'last_name',
-            'gender',
-            'dob',
-            'introduction',
-            'picture'
-        );
+    const results = await db('users').select(
+        'username',
+        'first_name',
+        'last_name',
+        'gender',
+        'dob',
+        'introduction',
+        'picture'
+    );
     res.status(200).json({ rows: results });
 });
 

@@ -159,7 +159,8 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
             'gender',
             'dob',
             'introduction',
-            'picture'
+            'picture',
+            'r_datetime'
         )
         .where({ user_id: user_id })
         .first();

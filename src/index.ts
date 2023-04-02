@@ -166,7 +166,10 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
         .first();
     if (!profile) return res.status(404).json({ error: 'User not found' });
 
-    const events = await db('events').select('*').where({ user_id: user_id });
+    const events = await db('events')
+        .select('*')
+        .where({ user_id: user_id })
+        .orderBy('host_datetime');
 
     res.status(200).json({ profile: profile, events: events });
 });

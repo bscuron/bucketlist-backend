@@ -210,6 +210,16 @@ app.post('/profile/edit', async (req: Request, res: Response) => {
     res.sendStatus(200);
 });
 
+// DELETE route to delete account with user_id of JWT sent in request header
+app.delete('/delete', async (req: Request, res: Response) => {
+    try {
+        await db('users').where('user_id', req.auth.user_id).del();
+        res.sendStatus(200); // 200 OK
+    } catch (_) {
+        res.sendStatus(500); // 500 Internal Service Error
+    }
+});
+
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);

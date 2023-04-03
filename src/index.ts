@@ -130,10 +130,7 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
 
     // Check that host_datetime is in the future
     const buffer_period = 5000; // 5 seconds
-    if (
-        new Date(host_datetime) <=
-        new Date(new Date().getTime() - buffer_period)
-    ) {
+    if (new Date(host_datetime) <= new Date(Date.now() + buffer_period)) {
         return res.sendStatus(400); // 400 Bad Request
     }
 

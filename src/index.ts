@@ -169,6 +169,7 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
     const events = await db('events')
         .select('*')
         .where({ user_id: user_id })
+        .andWhere('host_datetime', '>=', new Date().toISOString())
         .orderBy('host_datetime');
 
     res.status(200).json({ profile: profile, events: events });

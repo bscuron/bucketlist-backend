@@ -146,7 +146,8 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
             description: description,
             location: location,
             created_datetime: created_datetime,
-            host_datetime: host_datetime
+            host_datetime: host_datetime,
+            organizer: req.auth.username
         });
         res.sendStatus(201); // 201 Created
     } catch (_) {

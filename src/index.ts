@@ -155,10 +155,11 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
 });
 
 // GET route to retrieve profile information of `user_id` from `users` table. If `user_id` is not provided, the current user's profile is returned
-app.get('/profile/:user_id?', async (req: Request, res: Response) => {
-    const user_id = req.params.user_id || req.auth.user_id;
+app.get('/profile/:username?', async (req: Request, res: Response) => {
+    const username = req.params.username || req.auth.username;
     const profile = await db('users')
         .select(
+            'user_id',
             'username',
             'first_name',
             'last_name',
@@ -168,10 +169,10 @@ app.get('/profile/:user_id?', async (req: Request, res: Response) => {
             'picture',
             'r_datetime'
         )
-        .where({ user_id: user_id })
+        .where({ username: username })
         .first();
     if (!profile) return res.status(404).json({ error: 'User not found' });
-
+    const user_id = profile.user_id;
     const events = await db('events')
         .select('*')
         .where({ user_id: user_id })

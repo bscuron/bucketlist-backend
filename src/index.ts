@@ -242,8 +242,8 @@ app.delete('/delete/event/:event_id', async (req: Request, res: Response) => {
 });
 
 // Start the express server on port `process.env.PORT`
-app.listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);
 });
 
-export default app;
+export { app, server };

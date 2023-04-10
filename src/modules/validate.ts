@@ -26,7 +26,6 @@ const validateUsername = async (username: string): Promise<boolean> => {
     if (username == undefined || username.length < 6) {
         return false;
     }
-
     return !(await db('users')
         .select('user_id')
         .where({

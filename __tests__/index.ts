@@ -166,3 +166,60 @@ describe('GET /database/:table', () => {
         expect(res.status).toEqual(401);
     });
 });
+
+describe('GET /database/:table/:column/:value', () => {
+    let token: string;
+
+    let rows = [
+        {
+            username: 'testuser1',
+            email: 'testuser1@bucketlist.com',
+            password: 'Password1'
+        },
+        {
+            username: 'testuser2',
+            email: 'testuser2@bucketlist.com',
+            password: 'Password2'
+        }
+    ];
+
+    beforeAll(async () => {
+        await db('users')
+            .whereIn(
+                'username',
+                rows.map((r) => r.username)
+            )
+            .delete();
+        await db('users').insert(rows);
+        token = jwt.sign({}, process.env.JWT_SECRET);
+    });
+
+    afterAll(async () => {
+        server.close(() => {
+            console.log('LOG: Stopped server');
+        });
+        await db('users')
+            .whereIn(
+                'username',
+                rows.map((r) => r.username)
+            )
+            .delete();
+    });
+
+    it('should return 200 OK and the added row in the specified table with the specified value in the specified column ONLY IF the JWT token is provided', async () => {
+        const res = await request(app)
+            .get(`/database/users/password/${rows[0].password}`)
+            .set('Authorization', `Bearer ${token}`);
+        expect(res.status).toEqual(200);
+        res.body.rows.forEach((row: any) => {
+            expect(res.body.rows).toContainEqual(expect.objectContaining(row));
+        });
+    });
+
+    it('should return 401 Unauthorized if the JWT token is NOT provided', async () => {
+        const res = await request(app).get(
+            `/database/users/password/${rows[0].password}`
+        );
+        expect(res.status).toEqual(401);
+    });
+});

@@ -223,3 +223,80 @@ describe('GET /database/:table/:column/:value', () => {
         expect(res.status).toEqual(401);
     });
 });
+
+describe('POST /database/events/create', () => {
+    let token: string;
+
+    let event = {
+        title: 'Test event',
+        description: 'This is a test event',
+        location: 'Test place',
+        host_datetime: new Date(Date.now() + 100000)
+            .toISOString()
+            .slice(0, 19)
+            .replace('T', ' ')
+    };
+
+    beforeAll(() => {
+        token = jwt.sign({}, process.env.JWT_SECRET);
+    });
+
+    afterEach(async () => {
+        await db('events').where(event).del();
+        jest.clearAllMocks();
+    });
+
+    it('should return 201 Created if the request is valid and the user is authenticated', async () => {
+        const res = await request(app)
+            .post('/database/events/create')
+            .send(event)
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(res.status).toEqual(201);
+    });
+
+    it('should return 400 Bad Request if title is invalid', async () => {
+        const invalid = Object.assign({}, event, { title: undefined });
+
+        const res = await request(app)
+            .post('/database/events/create')
+            .send(invalid)
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(res.status).toEqual(400);
+    });
+
+    it('should return 400 Bad Request if location is invalid', async () => {
+        const invalid = Object.assign({}, event, {
+            location: undefined
+        });
+
+        const res = await request(app)
+            .post('/database/events/create')
+            .send(invalid)
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(res.status).toEqual(400);
+    });
+
+    it('should return 400 Bad Request if host_datetime is invalid', async () => {
+        const invalid = Object.assign({}, event, {
+            host_datetime: 'invalid datetime'
+        });
+
+        const res = await request(app)
+            .post('/database/events/create')
+            .send(invalid)
+            .set('Authorization', `Bearer ${token}`);
+
+        expect(res.status).toEqual(400);
+    });
+
+    it('should return 401 Unauthorized JWT is not provided in the request', async () => {
+        const res = await request(app)
+            .post('/database/events/create')
+            .send(event);
+
+        expect(res.status).toEqual(401);
+    });
+});

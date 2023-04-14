@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npx tsc && node dist/src/index.js",
     "doc": "npx typedoc",
-    "test": "jest --detectOpenHandles"
+    "test": "npx tsc && jest ./dist --detectOpenHandles"
   },
   "repository": {
     "type": "git",

@@ -4,6 +4,7 @@ import { app, createAuthToken } from './modules/express';
 import { validate, generateQRCode } from './modules/validate';
 import speakeasy, { GeneratedSecret } from 'speakeasy';
 
+
 // Extend ExpressRequest interface to include authentication (needed for JWT)
 interface Request extends ExpressRequest {
     auth?: any;
@@ -18,6 +19,7 @@ app.post('/signup', async (req: Request, res: Response) => {
     const username: string = req.body.username;
     const email: string = req.body.email;
     const password: string = req.body.password;
+
 
     const valid: boolean = await validate(username, email, password);
     if (!valid) {
@@ -34,6 +36,9 @@ app.post('/signup', async (req: Request, res: Response) => {
         name: `Bucketlist: ${username}`
     });
 
+    // console.log(username,password,email,secret,r_datetime)
+
+
     try {
         await db('users').insert({
             username: username,
@@ -45,7 +50,8 @@ app.post('/signup', async (req: Request, res: Response) => {
         const url: string = await generateQRCode(secret);
 
         // Send the QR code URL to the front-end for rendering
-        return res.status(201).json({ qrcode: url, backupcode: secret.base32 }); // 201 Created
+        return res.status(201).json({ qrcode: url, backupcode: secret.base32 }); 
+        // 201 Created
     } catch (error) {
         return res.sendStatus(500); // 500 Internal Server Error
     }
@@ -238,6 +244,55 @@ app.delete('/delete/event/:event_id', async (req: Request, res: Response) => {
         res.sendStatus(200); // 200 OK
     } catch (_) {
         res.sendStatus(500); // 500 Internal Service Error
+    }
+});
+
+// POST route for checking email
+app.post('/check_email', async (req: Request, res: Response) => {
+    const email: string = req.body.email;
+
+    if (!email) {
+        return res.sendStatus(400); // 400 Bad Request
+    }
+
+    console.log(email);
+    try {
+        const user = await db('users').where({ email: email }).first();
+
+        if (user) {
+            res.status(200).json({ emailExists: true });
+        } else {
+            res.status(200).json({ emailExists: false });
+        }
+    } catch (error) {
+        res.sendStatus(500); // 500 Internal Server Error
+    }
+});
+
+// POST route for resetting password
+app.post('/reset_password', async (req: Request, res: Response) => {
+    const email: string = req.body.email;
+    const newPassword: string = req.body.newPassword;
+
+    if (!email || !newPassword) {
+        return res.sendStatus(400); // 400 Bad Request
+    }
+
+    try {
+        // Update the user's password
+        const updatedRows = await db('users')
+            .where({ email: email })
+            .update({
+                password: newPassword
+            });
+
+        if (updatedRows === 0) {
+            return res.sendStatus(404); // 404 Not Found
+        }
+
+        res.sendStatus(200); // 200 OK
+    } catch (error) {
+        res.sendStatus(500); // 500 Internal Server Error
     }
 });
 

@@ -21,6 +21,9 @@ app.use(
         path: [
             '/signup',
             '/login',
+            '/check_email',
+            '/reset_password',
+
             /^\/database\/users\/username\/[^/]+$/, // NOTE: needed for real-time form validation
             /^\/database\/users\/email\/[^/]+$/ // NOTE: needed for real-time form validation
         ]

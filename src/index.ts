@@ -93,6 +93,16 @@ app.get('/database/:table', async (req: Request, res: Response) => {
     res.status(200).json({ rows: results });
 });
 
+// GET route to return all events and event attendees
+app.get('/events', async (req: Request, res: Response) => {
+    const events = await db('events')
+        .select('events.*', 'users.username')
+        .leftJoin('attendance', 'events.event_id', 'attendance.event_id')
+        .leftJoin('users', 'attendance.user_id', 'users.user_id')
+        .groupBy('events.event_id');
+    res.status(200).json({ events: events });
+});
+
 // TODO: wrap await in try/catch
 // GET route to return rows in `table` where `value` is in `column`
 app.get(

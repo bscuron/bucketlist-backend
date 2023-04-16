@@ -101,7 +101,7 @@ app.get('/events', async (req: Request, res: Response) => {
             'events.*',
             'users.username',
             db.raw(
-                `CASE WHEN attendance.user_id = ${user_id} THEN 1 ELSE 0 END AS attending`
+                `CASE WHEN (attendance.user_id = ${user_id} OR events.user_id = ${user_id}) THEN 1 ELSE 0 END AS attending`
             )
         )
         .leftJoin('attendance', 'events.event_id', 'attendance.event_id')

@@ -270,6 +270,16 @@ app.post('/attend/event/:event_id', async (req: Request, res: Response) => {
             return res.sendStatus(404); // 404 Not Found
         }
 
+        const attendance = await db('attendance')
+            .where({
+                user_id: req.auth.user_id,
+                event_id: req.params.event_id
+            })
+            .first();
+        if (attendance) {
+            return;
+        }
+
         await db('attendance').insert({
             user_id: req.auth.user_id,
             event_id: req.params.event_id

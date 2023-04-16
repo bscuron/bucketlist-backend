@@ -100,9 +100,9 @@ app.get('/events', async (req: Request, res: Response) => {
         .select(
             'events.*',
             db.raw(
-                `CASE WHEN (attendance.user_id = ${user_id} OR events.user_id = ${user_id}) THEN 1 ELSE 0 END AS attending`
+                `CASE WHEN EXISTS (SELECT * FROM attendance WHERE attendance.user_id = ${user_id} AND attendance.event_id = events.event_id) OR events.user_id = ${user_id} THEN 1 ELSE 0 END AS attending`
             ),
-            db.raw(`GROUP_CONCAT(users.username SEPARATOR ',') AS attendees`)
+            db.raw(`GROUP_CONCAT(users.username SEPARATOR ', ') AS attendees`)
         )
         .leftJoin('attendance', 'events.event_id', 'attendance.event_id')
         .leftJoin('users', 'attendance.user_id', 'users.user_id')

@@ -258,6 +258,28 @@ app.delete('/delete/event/:event_id', async (req: Request, res: Response) => {
     }
 });
 
+// POST route to attend event with `event_id`
+app.post('/attend/event/:event_id', async (req: Request, res: Response) => {
+    try {
+        const event = await db('events')
+            .where({
+                event_id: req.params.event_id
+            })
+            .first();
+        if (!event) {
+            return res.sendStatus(404); // 404 Not Found
+        }
+
+        await db('attendance').insert({
+            user_id: req.auth.user_id,
+            event_id: req.params.event_id
+        });
+        res.sendStatus(200); // 200 OK
+    } catch (_) {
+        res.sendStatus(500); // 500 Internal Service Error
+    }
+});
+
 // Start the express server on port `process.env.PORT`
 const server = app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);

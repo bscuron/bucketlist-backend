@@ -95,8 +95,15 @@ app.get('/database/:table', async (req: Request, res: Response) => {
 
 // GET route to return all events and event attendees
 app.get('/events', async (req: Request, res: Response) => {
+    const user_id = req.auth.user_id;
     const events = await db('events')
-        .select('events.*', 'users.username')
+        .select(
+            'events.*',
+            'users.username',
+            db.raw(
+                `CASE WHEN attendance.user_id = ${user_id} THEN 1 ELSE 0 END AS attending`
+            )
+        )
         .leftJoin('attendance', 'events.event_id', 'attendance.event_id')
         .leftJoin('users', 'attendance.user_id', 'users.user_id')
         .groupBy('events.event_id');

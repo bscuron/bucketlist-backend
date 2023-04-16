@@ -190,13 +190,33 @@ app.get('/profile/:username?', async (req: Request, res: Response) => {
         .where({ username: username })
         .first();
     if (!profile) return res.status(404).json({ error: 'User not found' });
-    const user_id = profile.user_id;
     const events = await db('events')
-        .select('*')
-        .where({ user_id: user_id })
-        .andWhere('host_datetime', '>=', new Date().toISOString())
-        .orderBy('host_datetime');
-
+        .select(
+            'events.*',
+            db.raw(`
+      CASE
+        WHEN events.user_id = ${profile.user_id} THEN 1
+        WHEN EXISTS (
+          SELECT * FROM attendance
+          WHERE attendance.user_id = ${profile.user_id}
+          AND attendance.event_id = events.event_id
+        ) THEN 1
+        ELSE 0
+      END AS attending
+    `),
+            db.raw(`GROUP_CONCAT(users.username SEPARATOR ', ') AS attendees`)
+        )
+        .leftJoin('attendance', 'events.event_id', 'attendance.event_id')
+        .leftJoin('users', 'attendance.user_id', 'users.user_id')
+        .groupBy('events.event_id')
+        .where(function () {
+            this.where('events.user_id', profile.user_id).orWhere(
+                'attendance.user_id',
+                profile.user_id
+            );
+        })
+        .andWhere('events.host_datetime', '>=', new Date().toISOString())
+        .orderBy('events.host_datetime');
     res.status(200).json({ profile: profile, events: events });
 });
 

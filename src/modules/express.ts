@@ -23,7 +23,8 @@ app.use(
             '/login',
             '/check_email',
             '/reset_password',
-
+            '/reset',
+            
             /^\/database\/users\/username\/[^/]+$/, // NOTE: needed for real-time form validation
             /^\/database\/users\/email\/[^/]+$/ // NOTE: needed for real-time form validation
         ]

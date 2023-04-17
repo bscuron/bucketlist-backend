@@ -3,6 +3,7 @@ import { db } from './modules/database';
 import { app, createAuthToken } from './modules/express';
 import { validate, generateQRCode } from './modules/validate';
 import speakeasy, { GeneratedSecret } from 'speakeasy';
+import nodemailer from "nodemailer";
 
 
 // Extend ExpressRequest interface to include authentication (needed for JWT)
@@ -22,6 +23,7 @@ app.post('/signup', async (req: Request, res: Response) => {
 
 
     const valid: boolean = await validate(username, email, password);
+    console.log(valid);
     if (!valid) {
         return res.sendStatus(400); // 400 Bad Request
     }
@@ -35,8 +37,6 @@ app.post('/signup', async (req: Request, res: Response) => {
     const secret: GeneratedSecret = speakeasy.generateSecret({
         name: `Bucketlist: ${username}`
     });
-
-    // console.log(username,password,email,secret,r_datetime)
 
 
     try {
@@ -247,6 +247,7 @@ app.delete('/delete/event/:event_id', async (req: Request, res: Response) => {
     }
 });
 
+let Email:string;
 // POST route for checking email
 app.post('/check_email', async (req: Request, res: Response) => {
     const email: string = req.body.email;
@@ -255,7 +256,9 @@ app.post('/check_email', async (req: Request, res: Response) => {
         return res.sendStatus(400); // 400 Bad Request
     }
 
-    console.log(email);
+
+    Email=email;
+
     try {
         const user = await db('users').where({ email: email }).first();
 
@@ -270,9 +273,12 @@ app.post('/check_email', async (req: Request, res: Response) => {
 });
 
 // POST route for resetting password
-app.post('/reset_password', async (req: Request, res: Response) => {
-    const email: string = req.body.email;
+app.post('/reset', async (req: Request, res: Response) => {
+    const email: string = Email;
     const newPassword: string = req.body.newPassword;
+
+    console.log(email);
+
 
     if (!email || !newPassword) {
         return res.sendStatus(400); // 400 Bad Request
@@ -295,6 +301,60 @@ app.post('/reset_password', async (req: Request, res: Response) => {
         res.sendStatus(500); // 500 Internal Server Error
     }
 });
+
+// TODO: wrap await in try/catch
+// POST route to send password reset email
+app.post('/reset_password', async (req: Request, res: Response) => {
+    const email: string = req.body.email;
+
+    if (!email) {
+        return res.sendStatus(400); // 400 Bad Request
+    }
+
+    // Check if user exists
+    const user = await db('users')
+        .select('user_id')
+        .where('email', '=', email)
+        .first();
+
+    if (!user) {
+        return res.sendStatus(400); // 400 Bad Request
+    }
+
+    // Generate password reset token with expiry time of 1 hour
+    const resetToken = createAuthToken({
+        user_id: user.user_id,
+        type: 'password-reset'
+    });
+
+    // Construct password reset URL with the reset token
+    const resetUrl = `${process.env.BASE_URL}/bucketlist/reset?token=${resetToken}`;
+
+    // Send password reset email
+    const transporter = nodemailer.createTransport({
+        service: process.env.EMAIL_SERVICE,
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    }); 
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Password reset',
+        text: `Click the link below to reset your password:\n\n${resetUrl}`
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        return res.sendStatus(200); // 200 OK
+    } catch (error) {
+        console.error(error);
+        return res.sendStatus(500); // 500 Internal Server Error
+    }
+});
+
 
 // Start the express server on port `process.env.PORT`
 const server = app.listen(process.env.PORT, () => {

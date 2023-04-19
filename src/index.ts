@@ -93,23 +93,6 @@ app.get('/database/:table', async (req: Request, res: Response) => {
     res.status(200).json({ rows: results });
 });
 
-// GET route to return all events and event attendees
-app.get('/events', async (req: Request, res: Response) => {
-    const user_id = req.auth.user_id;
-    const events = await db('events')
-        .select(
-            'events.*',
-            db.raw(
-                `CASE WHEN EXISTS (SELECT * FROM attendance WHERE attendance.user_id = ${user_id} AND attendance.event_id = events.event_id) OR events.user_id = ${user_id} THEN 1 ELSE 0 END AS attending`
-            ),
-            db.raw(`GROUP_CONCAT(users.username SEPARATOR ', ') AS attendees`)
-        )
-        .leftJoin('attendance', 'events.event_id', 'attendance.event_id')
-        .leftJoin('users', 'attendance.user_id', 'users.user_id')
-        .groupBy('events.event_id');
-    res.status(200).json({ events: events });
-});
-
 // TODO: wrap await in try/catch
 // GET route to return rows in `table` where `value` is in `column`
 app.get(
@@ -128,26 +111,12 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
     const description: string = req.body.description;
     const location: string = req.body.location;
     const user_id: string = req.auth.user_id;
-    const host_datetime: string = req.body.host_datetime;
 
     if (title == undefined || title.length < 1) {
         return res.sendStatus(400); // 400 Bad Request
     }
 
     if (location == undefined || location.length < 1) {
-        return res.sendStatus(400); // 400 Bad Request
-    }
-
-    // Check that host_datetime is in valid format
-    // TODO: validate that the datetime is within a certain time range (not too far in the past, future is allowed)
-    const datetime_regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
-    if (!datetime_regex.test(host_datetime)) {
-        return res.sendStatus(400); // 400 Bad Request
-    }
-
-    // Check that host_datetime is in the future
-    const buffer_period = 5000; // 5 seconds
-    if (new Date(host_datetime) <= new Date(Date.now() + buffer_period)) {
         return res.sendStatus(400); // 400 Bad Request
     }
 
@@ -162,9 +131,7 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
             title: title,
             description: description,
             location: location,
-            created_datetime: created_datetime,
-            host_datetime: host_datetime,
-            organizer: req.auth.username
+            created_datetime: created_datetime
         });
         res.sendStatus(201); // 201 Created
     } catch (_) {
@@ -173,66 +140,21 @@ app.post('/database/events/create', async (req: Request, res: Response) => {
 });
 
 // GET route to retrieve profile information of `user_id` from `users` table. If `user_id` is not provided, the current user's profile is returned
-app.get('/profile/:username?', async (req: Request, res: Response) => {
-    const username = req.params.username || req.auth.username;
-    const profile = await db('users')
+app.get('/profile/:user_id?', async (req: Request, res: Response) => {
+    const user = await db('users')
         .select(
-            'user_id',
             'username',
             'first_name',
             'last_name',
             'gender',
             'dob',
             'introduction',
-            'picture',
-            'r_datetime'
+            'picture'
         )
-        .where({ username: username })
+        .where({ user_id: req.params.user_id || req.auth.user_id })
         .first();
-    if (!profile) return res.status(404).json({ error: 'User not found' });
-    const events = await db('events')
-        .select(
-            'events.*',
-            db.raw(`
-      CASE
-        WHEN events.user_id = ${profile.user_id} THEN 1
-        WHEN EXISTS (
-          SELECT * FROM attendance
-          WHERE attendance.user_id = ${profile.user_id}
-          AND attendance.event_id = events.event_id
-        ) THEN 1
-        ELSE 0
-      END AS attending
-    `),
-            db.raw(`GROUP_CONCAT(users.username SEPARATOR ', ') AS attendees`)
-        )
-        .leftJoin('attendance', 'events.event_id', 'attendance.event_id')
-        .leftJoin('users', 'attendance.user_id', 'users.user_id')
-        .groupBy('events.event_id')
-        .where(function () {
-            this.where('events.user_id', profile.user_id).orWhere(
-                'attendance.user_id',
-                profile.user_id
-            );
-        })
-        .andWhere('events.host_datetime', '>=', new Date().toISOString())
-        .orderBy('events.host_datetime');
-    res.status(200).json({ profile: profile, events: events });
-});
-
-// TODO: wrap await in try/catch
-// GET route to return profile rows from `users` table.
-app.get('/profiles', async (req: Request, res: Response) => {
-    const results = await db('users').select(
-        'username',
-        'first_name',
-        'last_name',
-        'gender',
-        'dob',
-        'introduction',
-        'picture'
-    );
-    res.status(200).json({ rows: results });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.status(200).json(user);
 });
 
 // Post route to update profile information of user_id from users table.
@@ -255,82 +177,20 @@ app.post('/profile/edit', async (req: Request, res: Response) => {
     res.sendStatus(200);
 });
 
-// DELETE route to delete account with user_id of JWT sent in request header
-app.delete('/delete', async (req: Request, res: Response) => {
+// Post route to insert sponsor to the sponsors table
+app.post('/sponsor/create', async (req: Request, res: Response) => {
+    const name = req.body.name;
+    const email = req.body.email;
+
     try {
-        await db('users').where('user_id', req.auth.user_id).del();
-        res.sendStatus(200); // 200 OK
+        await db('sponsors')
+            .insert({
+                name: name,
+                email: email
+            });
+        res.sendStatus(201); // 201 Created
     } catch (_) {
-        res.sendStatus(500); // 500 Internal Service Error
-    }
-});
-
-// DELETE route to delete event with `event_id`
-app.delete('/delete/event/:event_id', async (req: Request, res: Response) => {
-    try {
-        await db('events')
-            .where('event_id', req.params.event_id)
-            .andWhere('user_id', req.auth.user_id)
-            .del();
-        res.sendStatus(200); // 200 OK
-    } catch (_) {
-        res.sendStatus(500); // 500 Internal Service Error
-    }
-});
-
-// POST route to attend event with `event_id`
-app.post('/attend/event/:event_id', async (req: Request, res: Response) => {
-    try {
-        const event = await db('events')
-            .where({
-                event_id: req.params.event_id
-            })
-            .first();
-        if (!event) {
-            return res.sendStatus(404); // 404 Not Found
-        }
-
-        const attendance = await db('attendance')
-            .where({
-                user_id: req.auth.user_id,
-                event_id: req.params.event_id
-            })
-            .first();
-        if (attendance) {
-            return;
-        }
-
-        await db('attendance').insert({
-            user_id: req.auth.user_id,
-            event_id: req.params.event_id
-        });
-        res.sendStatus(200); // 200 OK
-    } catch (_) {
-        res.sendStatus(500); // 500 Internal Service Error
-    }
-});
-
-// POST route to abandon event with `event_id`
-app.post('/abandon/event/:event_id', async (req: Request, res: Response) => {
-    try {
-        const event = await db('events')
-            .where({
-                event_id: req.params.event_id
-            })
-            .first();
-        if (!event) {
-            return res.sendStatus(404); // 404 Not Found
-        }
-
-        await db('attendance')
-            .where({
-                user_id: req.auth.user_id,
-                event_id: req.params.event_id
-            })
-            .del();
-        res.sendStatus(200); // 200 OK
-    } catch (_) {
-        res.sendStatus(500); // 500 Internal Service Error
+        res.sendStatus(400); // 400 Bad Request
     }
 });
 
@@ -352,8 +212,6 @@ app.post('/sponsor/create', async (req: Request, res: Response) => {
 });
 
 // Start the express server on port `process.env.PORT`
-const server = app.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);
 });
-
-export { app, server };

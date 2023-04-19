@@ -177,6 +177,23 @@ app.post('/profile/edit', async (req: Request, res: Response) => {
     res.sendStatus(200);
 });
 
+// Post route to insert sponsor to the sponsors table
+app.post('/sponsor/create', async (req: Request, res: Response) => {
+    const name = req.body.name;
+    const email = req.body.email;
+
+    try {
+        await db('sponsors')
+            .insert({
+                name: name,
+                email: email
+            });
+        res.sendStatus(201); // 201 Created
+    } catch (_) {
+        res.sendStatus(400); // 400 Bad Request
+    }
+});
+
 // Start the express server on port `process.env.PORT`
 app.listen(process.env.PORT, () => {
     console.log(`LOG: Server is running on port ${process.env.PORT}`);

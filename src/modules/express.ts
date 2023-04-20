@@ -22,7 +22,8 @@ app.use(
             '/signup',
             '/login',
             /^\/database\/users\/username\/[^/]+$/, // NOTE: needed for real-time form validation
-            /^\/database\/users\/email\/[^/]+$/ // NOTE: needed for real-time form validation
+            /^\/database\/users\/email\/[^/]+$/, // NOTE: needed for real-time form validation
+            '/sponsor/create'
         ]
     })
 );

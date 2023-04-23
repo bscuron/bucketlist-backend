@@ -106,7 +106,8 @@ app.get('/events', async (req: Request, res: Response) => {
         )
         .leftJoin('attendance', 'events.event_id', 'attendance.event_id')
         .leftJoin('users', 'attendance.user_id', 'users.user_id')
-        .groupBy('events.event_id');
+        .groupBy('events.event_id')
+        .orderBy('created_datetime', 'desc');
     res.status(200).json({ events: events });
 });
 
@@ -340,11 +341,10 @@ app.post('/sponsor/create', async (req: Request, res: Response) => {
     const email = req.body.email;
 
     try {
-        await db('sponsors')
-            .insert({
-                name: name,
-                email: email
-            });
+        await db('sponsors').insert({
+            name: name,
+            email: email
+        });
         res.sendStatus(201); // 201 Created
     } catch (_) {
         res.sendStatus(400); // 400 Bad Request

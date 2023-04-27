@@ -52,3 +52,19 @@ npm run start
 ```
 
 You should now be setup to make requests to the backend application from the frontend using HTTP requests. Requests can be made to the application endpoints located in [index.js](https://github.com/bscuron/bucketlist-backend/blob/master/src/index.ts).
+
+## Uninstall
+
+### Step 1: Stop the server
+
+If the application is currently running on your server, make sure to stop it.
+
+### Step 2: Delete the project folder
+
+You can simply delete the project folder where you cloned the repository. If you are using a Unix-like operating system, you can use the following command to delete the project folder:
+
+```
+rm -rf bucketlist-backend
+```
+
+This will delete the entire `bucketlist-backend` folder and its contents, including the `package.json` file and all installed dependencies.

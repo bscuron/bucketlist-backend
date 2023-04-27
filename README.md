@@ -63,7 +63,7 @@ If the application is currently running on your server, make sure to stop it.
 
 You can simply delete the project folder where you cloned the repository. If you are using a Unix-like operating system, you can use the following command to delete the project folder:
 
-```
+```sh
 rm -rf bucketlist-backend
 ```
 

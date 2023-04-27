@@ -16,14 +16,39 @@ Through social connection and event tracking and planning we can all reach our g
 
 ## Install
 
-1. [Node.js](https://nodejs.org/en/download) >= 16.19.0
-2. Run:
+Follow these steps to run the project as your own.
+
+### Step 1: Install dependencies
+
+- [Node.js](https://nodejs.org/en/download)
+- [npm](https://nodejs.org/en/download) (Installed with Node.js)
+
+### Step 2: Clone the repository
 
 ```sh
-npm install
-npm run serve
+git clone https://github.com/bscuron/bucketlist-backend.git
 ```
 
-## Uninstall
+### Step 3: Make necessary changes
 
-Remove the project directory and uninstall Node.js (OS specific)
+Our application is currently hosted at [https://cis-linux2.temple.edu](https://cis-linux2.temple.edu). In order to transfer the application to your domain, you will need to replace all instances of `cis-linux2.temple.edu` with your own domain. To accomplish this task, you can utilize the powerful tool [sed](https://man7.org/linux/man-pages/man1/sed.1.html) that can replace the old domain with your new one throughout your project.
+
+You must also setup your MySQL database with our [schema](https://github.com/bscuron/bucketlist-backend/blob/master/SCHEMA.sql). Please use the following command
+
+```sh
+mysql -u username -p database_name < SCHEMA.sql
+```
+
+### Step 4: Install node modules
+
+```sh
+cd bucketlist-backend && npm install
+```
+
+### Step 5: Run the application
+
+```sh
+npm run start
+```
+
+You should now be setup to make requests to the backend application from the frontend using HTTP requests. Requests can be made to the application endpoints located in [index.js](https://github.com/bscuron/bucketlist-backend/blob/master/src/index.ts).
